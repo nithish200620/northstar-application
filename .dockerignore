@@ -1,0 +1,6 @@
+traffic-intelligence-system/
+.venv/
+__pycache__/
+*.py[cod]
+.git/
+*.db

@@ -1,0 +1,209 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Northstar | Task Operations</title>
+    <style>
+        :root {
+            --ink: #183331;
+            --muted: #71817e;
+            --paper: #f6f8f5;
+            --panel: #ffffff;
+            --line: #e0e8e3;
+            --teal: #176b68;
+            --teal-dark: #0d4d4b;
+            --coral: #e16d55;
+            --gold: #d7a737;
+            --shadow: 0 12px 30px rgba(29, 62, 57, 0.07);
+        }
+
+        * { box-sizing: border-box; }
+        body { margin: 0; color: var(--ink); background: #eaf0ec; font-family: "Trebuchet MS", Arial, sans-serif; }
+        button, input, select, textarea { font: inherit; }
+        button { cursor: pointer; transition: color .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+        .app { display: grid; grid-template-columns: 238px minmax(0, 1fr); min-height: 100vh; }
+        .sidebar { display: flex; flex-direction: column; padding: 32px 18px; border-right: 1px solid rgba(255,255,255,.08); color: #e9f3ed; background: var(--teal-dark); }
+        .brand { display: flex; gap: 11px; align-items: center; margin: 0 12px 66px; color: #fff; font: 700 19px Georgia, serif; }
+        .brand-mark { display: grid; width: 31px; height: 31px; place-items: center; border: 2px solid #9ad5c0; border-radius: 50%; color: #9ad5c0; font: 700 13px Georgia, serif; }
+        .nav-label { margin: 0 12px 12px; color: #8eb6aa; font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+        .nav { display: grid; gap: 5px; }
+        .nav-button { display: flex; gap: 12px; align-items: center; padding: 12px; border: 0; border-radius: 6px; color: #c1dbd1; background: transparent; text-align: left; font-size: 13px; }
+        .nav-button.active, .nav-button:hover { color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 3px 0 var(--coral); }
+        .nav-icon { width: 21px; color: #8ed2bb; text-align: center; font-weight: 700; }
+        .sidebar-footer { margin-top: auto; padding: 16px 12px; border-top: 1px solid rgba(255,255,255,.14); color: #a8c8bc; font-size: 11px; line-height: 1.6; }
+        .sidebar-footer strong { display: block; margin-bottom: 4px; color: #fff; font-size: 12px; }
+        .main { min-width: 0; padding: 34px clamp(20px, 4vw, 64px) 64px; background: var(--paper); }
+        .content { width: min(1120px, 100%); margin: 0 auto; animation: rise-in .65s ease both; }
+        .topbar { display: flex; justify-content: space-between; gap: 20px; align-items: center; margin-bottom: 46px; }
+        .breadcrumb { color: var(--muted); font-size: 12px; }
+        .breadcrumb strong { color: var(--ink); }
+        .top-actions { display: flex; gap: 12px; align-items: center; }
+        .avatar { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 50%; color: #fff; background: var(--coral); font-size: 12px; font-weight: 700; }
+        .avatar:hover { box-shadow: 0 0 0 4px rgba(225,109,85,.18); transform: translateY(-1px); }
+        .icon-button { display: grid; width: 35px; height: 35px; place-items: center; border: 1px solid var(--line); border-radius: 6px; color: var(--teal); background: var(--panel); }
+        .icon-button:hover { border-color: var(--teal); background: #e8f3ee; transform: translateY(-1px); }
+        .hero { display: flex; justify-content: space-between; gap: 30px; align-items: end; margin-bottom: 30px; }
+        .eyebrow { margin: 0 0 11px; color: var(--coral); font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+        h1 { margin: 0; font: 400 clamp(36px, 5vw, 52px)/1 Georgia, serif; letter-spacing: -.035em; }
+        .hero-copy { max-width: 510px; margin: 15px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+        .hero-actions { display: grid; justify-items: end; gap: 14px; }
+        .api-status { display: inline-flex; gap: 7px; align-items: center; color: var(--muted); font-size: 11px; }
+        .api-status i { width: 7px; height: 7px; border-radius: 50%; background: #48a878; box-shadow: 0 0 0 4px rgba(72,168,120,.14); }
+        .primary { display: inline-flex; gap: 8px; align-items: center; padding: 13px 18px; border: 0; border-radius: 5px; color: #fff; background: var(--teal); box-shadow: 0 8px 18px rgba(23,107,104,.18); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+        .primary:hover { background: var(--teal-dark); box-shadow: 0 11px 22px rgba(23,107,104,.25); transform: translateY(-2px); }
+        .plus { font-size: 18px; line-height: 0; }
+        .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; margin-bottom: 25px; }
+        .metric { padding: 19px 20px; border: 1px solid var(--line); border-radius: 9px; background: rgba(255,255,255,.96); box-shadow: var(--shadow); transition: transform .2s ease, box-shadow .2s ease; }
+        .metric:hover { box-shadow: 0 20px 42px rgba(29,62,57,.13); transform: translateY(-3px); }
+        .metric-top { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; font-weight: 700; text-transform: uppercase; }
+        .metric-value { margin-top: 9px; font: 400 30px Georgia, serif; }
+        .metric-note { margin-top: 6px; color: var(--muted); font-size: 11px; }
+        .metric-note.good { color: var(--teal); }
+        .metric-dot { width: 8px; height: 8px; margin-top: 2px; border-radius: 50%; background: var(--coral); }
+        .metric:nth-child(2) .metric-dot { background: var(--gold); }
+        .metric:nth-child(3) .metric-dot { background: var(--teal); }
+        .metric:nth-child(4) .metric-dot { background: #879f93; }
+        .toolbar { display: flex; justify-content: space-between; gap: 14px; align-items: center; padding: 15px 17px; border: 1px solid var(--line); border-bottom: 0; border-radius: 9px 9px 0 0; background: #fff; }
+        .search { position: relative; flex: 1; max-width: 380px; }
+        .search span { position: absolute; top: 10px; left: 12px; color: var(--muted); font-size: 14px; }
+        .search input { width: 100%; padding: 9px 12px 9px 34px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: #fff; font-size: 12px; }
+        .filters { display: flex; gap: 8px; }
+        select { padding: 9px 28px 9px 10px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: #fff; font-size: 11px; }
+        .task-list { min-height: 250px; border: 1px solid var(--line); border-radius: 0 0 9px 9px; background: var(--panel); box-shadow: var(--shadow); overflow: hidden; }
+        .list-heading { display: grid; grid-template-columns: minmax(240px, 1fr) 130px 108px 115px 75px; gap: 14px; padding: 13px 20px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        .task-row { display: grid; grid-template-columns: minmax(240px, 1fr) 130px 108px 115px 75px; gap: 14px; align-items: center; padding: 16px 20px; border-bottom: 1px solid #edf1ee; animation: row-in .4s ease both; }
+        .task-row:last-child { border-bottom: 0; }
+        .task-row:hover { background: #fbfdfb; }
+        .task-title { min-width: 0; }
+        .task-title strong { display: block; overflow: hidden; font: 700 14px Georgia, serif; text-overflow: ellipsis; white-space: nowrap; }
+        .task-title span { display: block; overflow: hidden; margin-top: 5px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+        .pill { display: inline-flex; align-items: center; width: fit-content; padding: 5px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .pill.high { color: #9d4939; background: #f8dfd8; }
+        .pill.medium { color: #906f16; background: #f8edca; }
+        .pill.low { color: #37705d; background: #dcefe5; }
+        .status-select { width: 110px; padding: 6px 6px; border: 0; color: var(--muted); background: transparent; font-size: 11px; }
+        .due { color: var(--muted); font-size: 11px; }
+        .due.soon { color: var(--coral); font-weight: 700; }
+        .row-actions { display: flex; justify-content: end; gap: 4px; }
+        .row-action { width: 27px; height: 27px; border: 0; border-radius: 4px; color: var(--muted); background: transparent; font-size: 13px; }
+        .row-action:hover { color: var(--teal); background: #e8f1ed; }
+        .empty { padding: 70px 20px; color: var(--muted); text-align: center; font-size: 13px; }
+        .empty strong { display: block; margin-bottom: 7px; color: var(--ink); font: 20px Georgia, serif; }
+        .modal-backdrop { display: none; position: fixed; inset: 0; z-index: 5; place-items: center; padding: 20px; background: rgba(13, 40, 38, .48); }
+        .modal-backdrop.open { display: grid; }
+        .modal { width: min(510px, 100%); padding: 28px; border-radius: 8px; background: #fff; box-shadow: 0 25px 80px rgba(10, 46, 40, .23); }
+        .modal-head { display: flex; justify-content: space-between; gap: 20px; align-items: start; margin-bottom: 24px; }
+        .modal h2 { margin: 0; font: 400 29px Georgia, serif; }
+        .close { border: 0; color: var(--muted); background: transparent; font-size: 20px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .field { display: grid; gap: 7px; }
+        .field.full { grid-column: 1 / -1; }
+        .field label { color: var(--muted); font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+        .field input, .field textarea, .field select { width: 100%; padding: 11px 12px; border: 1px solid var(--line); border-radius: 4px; color: var(--ink); background: #fbfdfb; font-size: 13px; }
+        .field textarea { min-height: 82px; resize: vertical; }
+        .modal-footer { display: flex; justify-content: end; gap: 10px; margin-top: 24px; }
+        .secondary { padding: 11px 15px; border: 1px solid var(--line); border-radius: 4px; color: var(--muted); background: #fff; font-size: 12px; }
+        .form-error { min-height: 18px; margin: 12px 0 0; color: var(--coral); font-size: 12px; }
+        .toast { position: fixed; right: 25px; bottom: 25px; z-index: 10; padding: 13px 17px; border-radius: 5px; color: #fff; background: var(--teal-dark); box-shadow: var(--shadow); font-size: 12px; opacity: 0; transform: translateY(12px); transition: .2s ease; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        .section-heading { margin-bottom: 22px; }
+        .section-heading h2 { margin: 0; font: 400 34px Georgia, serif; }
+        .section-heading p { margin: 8px 0 0; color: var(--muted); font-size: 13px; }
+        .calendar-grid, .insight-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 9px; }
+        .calendar-day, .insight-panel, .profile-panel { min-height: 170px; padding: 15px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); box-shadow: var(--shadow); }
+        .calendar-day.today { border-color: var(--teal); box-shadow: 0 0 0 2px rgba(23,107,104,.12); }
+        .day-name { color: var(--muted); font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .day-number { margin: 7px 0 16px; font: 400 25px Georgia, serif; }
+        .calendar-task { display: block; width: 100%; margin-top: 8px; padding: 8px; border: 0; border-left: 3px solid var(--coral); border-radius: 3px; color: var(--ink); background: #f8eeea; text-align: left; font-size: 10px; line-height: 1.3; }
+        .calendar-task:hover { background: #f3d9d1; }
+        .calendar-task.done { border-color: var(--teal); background: #e8f2ed; color: var(--teal-dark); }
+        .calendar-empty { color: #aab7b2; font-size: 10px; }
+        .agenda-panel { margin-top: 16px; padding: 20px; border: 1px solid var(--line); border-radius: 7px; background: var(--panel); }
+        .agenda-panel h3 { margin: 0 0 8px; font: 400 21px Georgia, serif; }
+        .agenda-panel p { margin: 0; color: var(--muted); font-size: 12px; }
+        .agenda-panel strong { color: var(--coral); }
+        .insight-panel, .profile-panel { min-height: auto; }
+        .insight-grid { grid-template-columns: 1.2fr .8fr; }
+        .insight-panel h3 { margin: 0 0 20px; font: 400 22px Georgia, serif; }
+        .bar-row { display: grid; grid-template-columns: 90px 1fr 30px; gap: 12px; align-items: center; margin: 15px 0; color: var(--muted); font-size: 11px; }
+        .bar { height: 9px; overflow: hidden; border-radius: 6px; background: #e5ede8; }
+        .bar span { display: block; height: 100%; border-radius: inherit; background: var(--teal); }
+        .profile-panel { max-width: 560px; }
+        .profile-header { display: flex; gap: 16px; align-items: center; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+        .profile-large { display: grid; width: 58px; height: 58px; place-items: center; border-radius: 50%; color: #fff; background: var(--coral); font: 700 18px Georgia, serif; }
+        .profile-header h3 { margin: 0 0 5px; font: 400 24px Georgia, serif; }
+        .profile-header p { margin: 0; color: var(--muted); font-size: 12px; }
+        .profile-details { display: grid; gap: 15px; margin-top: 22px; }
+        .profile-detail { display: flex; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 12px; }
+        .profile-detail strong { color: var(--ink); font-weight: 700; }
+        @keyframes rise-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes row-in { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+        @media (max-width: 900px) { .app { grid-template-columns: 74px minmax(0, 1fr); } .sidebar { padding: 24px 12px; } .brand { justify-content: center; margin: 0 0 45px; } .brand span, .nav-label, .nav-button span:not(.nav-icon), .sidebar-footer { display: none; } .nav-button { justify-content: center; } .list-heading, .task-row { grid-template-columns: minmax(200px, 1fr) 105px 95px 70px; } .list-heading div:nth-child(3), .task-row > .pill { display: none; } .calendar-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 650px) { .main { padding: 20px 14px 45px; } .topbar { margin-bottom: 32px; } .hero { display: block; } .hero .primary { margin-top: 22px; } .metrics { grid-template-columns: 1fr 1fr; } .toolbar { display: block; } .search { max-width: none; margin-bottom: 10px; } .filters { width: 100%; } .filters select { flex: 1; } .list-heading { display: none; } .task-row { grid-template-columns: 1fr auto; gap: 9px; padding: 16px; } .task-row > .status-select, .task-row > .due { grid-column: 1; } .task-row > .row-actions { grid-column: 2; grid-row: 1 / span 2; align-self: center; } .task-row > .pill { display: inline-flex; grid-column: 1; } .form-grid { grid-template-columns: 1fr; } .field.full { grid-column: auto; } .calendar-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <aside class="sidebar">
+            <div class="brand"><span class="brand-mark">N</span><span>northstar</span></div>
+            <p class="nav-label">Workspace</p>
+            <nav class="nav" aria-label="Main navigation"><button class="nav-button active" data-view-target="tasks"><span class="nav-icon">+</span><span>My tasks</span></button><button class="nav-button" data-view-target="calendar"><span class="nav-icon">#</span><span>Calendar</span></button><button class="nav-button" data-view-target="insights"><span class="nav-icon">*</span><span>Insights</span></button></nav>
+            <div class="sidebar-footer"><strong>Focus mode</strong>Make the next useful thing obvious.</div>
+        </aside>
+        <main class="main"><div class="content">
+            <header class="topbar"><div class="breadcrumb">Workspace / <strong id="breadcrumb-label">My tasks</strong></div><div class="top-actions"><button class="icon-button" id="refresh-button" title="Refresh tasks" aria-label="Refresh tasks">&#8635;</button><button class="avatar" id="profile-button" title="Open profile" aria-label="Open profile">NS</button></div></header>
+            <div id="tasks-view" class="view-section active">
+            <section class="hero"><div><p class="eyebrow">Wednesday, 30 September 2026</p><h1>Make progress<br>feel tangible.</h1><p class="hero-copy">A clear place for the work that matters. Keep the queue light, move with intention, and give completed work its due.</p></div><div class="hero-actions"><span class="api-status"><i></i> API connected</span><button class="primary" id="new-task-button"><span class="plus">+</span> New task</button></div></section>
+            <section class="metrics" aria-label="Task overview"><div class="metric"><div class="metric-top"><span>All tasks</span><i class="metric-dot"></i></div><div class="metric-value" id="total-stat">--</div><div class="metric-note">in your workspace</div></div><div class="metric"><div class="metric-top"><span>In progress</span><i class="metric-dot"></i></div><div class="metric-value" id="active-stat">--</div><div class="metric-note">currently moving</div></div><div class="metric"><div class="metric-top"><span>Completed</span><i class="metric-dot"></i></div><div class="metric-value" id="done-stat">--</div><div class="metric-note good">nice work</div></div><div class="metric"><div class="metric-top"><span>Remaining</span><i class="metric-dot"></i></div><div class="metric-value" id="remaining-stat">--</div><div class="metric-note">room to make progress</div></div></section>
+            <section class="toolbar" aria-label="Task filters"><div class="search"><span>&#9906;</span><input id="search-input" type="search" placeholder="Search tasks or notes..."></div><div class="filters"><select id="status-filter" aria-label="Filter by status"><option value="all">All statuses</option><option value="todo">To do</option><option value="in_progress">In progress</option><option value="done">Done</option></select><select id="priority-filter" aria-label="Filter by priority"><option value="all">All priorities</option><option value="high">High priority</option><option value="medium">Medium priority</option><option value="low">Low priority</option></select></div></section>
+            <section class="task-list"><div class="list-heading"><div>Task</div><div>Status</div><div>Priority</div><div>Due date</div><div></div></div><div id="task-list" aria-live="polite"></div></section>
+            </div>
+            <section id="calendar-view" class="view-section"><div class="section-heading"><h2>Calendar</h2><p>Plan the next seven days around the work that matters.</p></div><div id="calendar-grid" class="calendar-grid"></div><div class="agenda-panel"><h3>Next up</h3><p id="agenda-summary">Loading your upcoming agenda...</p></div></section>
+            <section id="insights-view" class="view-section"><div class="section-heading"><h2>Insights</h2><p>A quiet read on where your attention is going.</p></div><div class="insight-grid"><article class="insight-panel"><h3>Task mix</h3><div class="bar-row"><span>To do</span><div class="bar"><span id="todo-bar"></span></div><strong id="todo-count">0</strong></div><div class="bar-row"><span>In progress</span><div class="bar"><span id="active-bar"></span></div><strong id="active-count">0</strong></div><div class="bar-row"><span>Completed</span><div class="bar"><span id="done-bar"></span></div><strong id="done-count">0</strong></div></article><article class="insight-panel"><h3>Keep the rhythm</h3><p id="insight-summary">Loading your current rhythm...</p></article></div></section>
+            <section id="profile-view" class="view-section"><div class="section-heading"><h2>Profile</h2><p>Your workspace identity and preferences.</p></div><div class="profile-panel"><div class="profile-header"><span class="profile-large">NS</span><div><h3>Northstar member</h3><p>Focused builder</p></div></div><div class="profile-details"><div class="profile-detail"><span>Workspace</span><strong>Personal operations</strong></div><div class="profile-detail"><span>Storage</span><strong>SQLite local database</strong></div><div class="profile-detail"><span>Notifications</span><strong>Daily digest</strong></div></div></div></section>
+        </div></main>
+    </div>
+    <div class="modal-backdrop" id="modal-backdrop"><form class="modal" id="task-form"><div class="modal-head"><h2 id="modal-title">Create a task</h2><button type="button" class="close" id="close-modal">&times;</button></div><div class="form-grid"><div class="field full"><label for="task-title">Task title</label><input id="task-title" required maxlength="120" placeholder="What needs your attention?"></div><div class="field full"><label for="task-description">Notes</label><textarea id="task-description" maxlength="500" placeholder="Add context, links, or a useful next step..."></textarea></div><div class="field"><label for="task-priority">Priority</label><select id="task-priority"><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div><div class="field"><label for="task-due">Due date</label><input id="task-due" type="date"></div></div><p class="form-error" id="form-error"></p><div class="modal-footer"><button type="button" class="secondary" id="cancel-modal">Cancel</button><button class="primary" type="submit"><span class="plus">+</span> <span id="submit-label">Create task</span></button></div></form></div>
+    <div class="toast" id="toast"></div>
+    <script>
+        const state = { tasks: [], calendarTasks: [], editingId: null };
+        const taskList = document.querySelector("#task-list");
+        const searchInput = document.querySelector("#search-input");
+        const statusFilter = document.querySelector("#status-filter");
+        const priorityFilter = document.querySelector("#priority-filter");
+        const modalBackdrop = document.querySelector("#modal-backdrop");
+        const taskForm = document.querySelector("#task-form");
+        const toast = document.querySelector("#toast");
+        const formError = document.querySelector("#form-error");
+        const breadcrumbLabel = document.querySelector("#breadcrumb-label");
+        function escapeHtml(value) { return String(value ?? "").replace(/[&<>'"]/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;" }[character])); }
+        function formatDate(value) { if (!value) return "No date"; return new Date(`${value}T00:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
+        function isSoon(value) { if (!value) return false; const difference = (new Date(`${value}T00:00:00`) - new Date()) / 86400000; return difference >= -1 && difference <= 2; }
+        function showToast(message) { toast.textContent = message; toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 2400); }
+        function renderTasks() {
+            if (!state.tasks.length) { taskList.innerHTML = '<div class="empty"><strong>Nothing matches this view.</strong>Try another filter or create a new task.</div>'; return; }
+            taskList.innerHTML = state.tasks.map((task) => `<article class="task-row" data-id="${task.id}"><div class="task-title"><strong>${escapeHtml(task.title)}</strong><span>${escapeHtml(task.description || "No notes added")}</span></div><select class="status-select" data-action="status" aria-label="Update status"><option value="todo" ${task.status === "todo" ? "selected" : ""}>To do</option><option value="in_progress" ${task.status === "in_progress" ? "selected" : ""}>In progress</option><option value="done" ${task.status === "done" ? "selected" : ""}>Done</option></select><span class="pill ${task.priority}">${escapeHtml(task.priority)}</span><span class="due ${isSoon(task.due_date) ? "soon" : ""}">${formatDate(task.due_date)}</span><div class="row-actions"><button class="row-action" data-action="edit" title="Edit task">&#9998;</button><button class="row-action" data-action="delete" title="Delete task">&times;</button></div></article>`).join("");
+        }
+        function dateKey(value) { return value.toISOString().slice(0, 10); }
+        function renderCalendar(tasks) { state.calendarTasks = tasks; const today = new Date(); today.setHours(12, 0, 0, 0); const days = Array.from({ length: 7 }, (_, index) => { const day = new Date(today); day.setDate(today.getDate() + index); return day; }); document.querySelector("#calendar-grid").innerHTML = days.map((day) => { const key = dateKey(day); const dayTasks = tasks.filter((task) => task.due_date === key); return `<article class="calendar-day ${key === dateKey(today) ? "today" : ""}"><div class="day-name">${day.toLocaleDateString(undefined, { weekday: "short" })}</div><div class="day-number">${day.getDate()}</div>${dayTasks.length ? dayTasks.map((task) => `<button class="calendar-task ${task.status === "done" ? "done" : ""}" data-calendar-task="${task.id}" title="Edit task">${escapeHtml(task.title)}</button>`).join("") : '<span class="calendar-empty">Open space</span>'}</article>`; }).join(""); const upcoming = tasks.filter((task) => task.due_date && task.status !== "done").sort((first, second) => first.due_date.localeCompare(second.due_date)); document.querySelector("#agenda-summary").innerHTML = upcoming.length ? `<strong>${upcoming.length} open task${upcoming.length === 1 ? "" : "s"}</strong> in the next seven days. The nearest is ${escapeHtml(upcoming[0].title)} on ${formatDate(upcoming[0].due_date)}.` : "No open tasks are due in the next seven days. Your calendar has room to breathe."; }
+        async function loadTasks() { const params = new URLSearchParams({ q: searchInput.value, status: statusFilter.value, priority: priorityFilter.value }); const response = await fetch(`/api/tasks?${params}`); if (!response.ok) throw new Error("Could not load tasks."); state.tasks = await response.json(); renderTasks(); }
+        async function loadCalendar() { const response = await fetch("/api/tasks"); if (!response.ok) throw new Error("Could not load calendar."); renderCalendar(await response.json()); }
+        async function loadStats() { const response = await fetch("/api/stats"); const stats = await response.json(); document.querySelector("#total-stat").textContent = stats.total; document.querySelector("#active-stat").textContent = stats.active; document.querySelector("#done-stat").textContent = stats.done; document.querySelector("#remaining-stat").textContent = stats.remaining; const todo = stats.total - stats.active - stats.done; document.querySelector("#todo-count").textContent = todo; document.querySelector("#active-count").textContent = stats.active; document.querySelector("#done-count").textContent = stats.done; document.querySelector("#todo-bar").style.width = `${stats.total ? todo / stats.total * 100 : 0}%`; document.querySelector("#active-bar").style.width = `${stats.total ? stats.active / stats.total * 100 : 0}%`; document.querySelector("#done-bar").style.width = `${stats.total ? stats.done / stats.total * 100 : 0}%`; document.querySelector("#insight-summary").textContent = stats.remaining ? `${stats.remaining} task${stats.remaining === 1 ? "" : "s"} still need attention. Choose one small next step and keep the queue moving.` : "Everything is complete. Take a breath, then decide what comes next."; }
+        async function refresh(showFeedback = false) { try { await Promise.all([loadTasks(), loadStats(), loadCalendar()]); if (showFeedback) showToast("Workspace refreshed."); } catch (error) { showToast(error.message); } }
+        function switchView(viewName) { document.querySelectorAll(".view-section").forEach((view) => view.classList.toggle("active", view.id === `${viewName}-view`)); document.querySelectorAll(".nav-button").forEach((button) => button.classList.toggle("active", button.dataset.viewTarget === viewName)); breadcrumbLabel.textContent = viewName === "tasks" ? "My tasks" : viewName[0].toUpperCase() + viewName.slice(1); }
+        function openModal(task = null) { state.editingId = task?.id ?? null; document.querySelector("#modal-title").textContent = task ? "Edit task" : "Create a task"; document.querySelector("#submit-label").textContent = task ? "Save changes" : "Create task"; document.querySelector("#task-title").value = task?.title || ""; document.querySelector("#task-description").value = task?.description || ""; document.querySelector("#task-priority").value = task?.priority || "medium"; document.querySelector("#task-due").value = task?.due_date || ""; formError.textContent = ""; modalBackdrop.classList.add("open"); document.querySelector("#task-title").focus(); }
+        function closeModal() { modalBackdrop.classList.remove("open"); state.editingId = null; }
+        taskForm.addEventListener("submit", async (event) => { event.preventDefault(); formError.textContent = ""; const editingId = state.editingId; const payload = { title: document.querySelector("#task-title").value, description: document.querySelector("#task-description").value, priority: document.querySelector("#task-priority").value, due_date: document.querySelector("#task-due").value || null }; const url = editingId ? `/api/tasks/${editingId}` : "/api/tasks"; try { const response = await fetch(url, { method: editingId ? "PATCH" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); if (!response.ok) { const data = await response.json(); throw new Error(Object.values(data.errors || { error: "Please check the form." }).join(" ")); } closeModal(); await refresh(); showToast(editingId ? "Task updated." : "Task created."); } catch (error) { formError.textContent = error.message; } });
+        document.querySelector("#calendar-grid").addEventListener("click", (event) => { const taskButton = event.target.closest("[data-calendar-task]"); if (!taskButton) return; const task = state.calendarTasks.find((item) => item.id === Number(taskButton.dataset.calendarTask)); if (task) openModal(task); });
+        taskList.addEventListener("click", async (event) => { const action = event.target.closest("[data-action]")?.dataset.action; const row = event.target.closest("[data-id]"); if (!action || !row) return; const task = state.tasks.find((item) => item.id === Number(row.dataset.id)); if (action === "edit") openModal(task); if (action === "delete" && confirm("Delete this task?")) { await fetch(`/api/tasks/${task.id}`, { method: "DELETE" }); await refresh(); showToast("Task deleted."); } });
+        taskList.addEventListener("change", async (event) => { if (event.target.dataset.action !== "status") return; const row = event.target.closest("[data-id]"); await fetch(`/api/tasks/${row.dataset.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: event.target.value }) }); await refresh(); showToast("Status updated."); });
+        [searchInput, statusFilter, priorityFilter].forEach((element) => element.addEventListener(element === searchInput ? "input" : "change", loadTasks));
+        document.querySelectorAll(".nav-button").forEach((button) => button.addEventListener("click", () => switchView(button.dataset.viewTarget))); document.querySelector("#profile-button").addEventListener("click", () => switchView("profile")); document.querySelector("#new-task-button").addEventListener("click", () => openModal()); document.querySelector("#refresh-button").addEventListener("click", () => refresh(true)); document.querySelector("#close-modal").addEventListener("click", closeModal); document.querySelector("#cancel-modal").addEventListener("click", closeModal); modalBackdrop.addEventListener("click", (event) => { if (event.target === modalBackdrop) closeModal(); }); document.addEventListener("keydown", (event) => { if (event.key === "Escape") closeModal(); });
+        refresh();
+    </script>
+</body>
+</html>
